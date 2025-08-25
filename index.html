@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Aggregator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        [data-bs-theme="dark"] {
+            --primary-color: #4da3ff;
+            --secondary-color: #8a95a1;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ffb300;
+            --info-color: #29b6f6;
+            --light-color: #2b3035;
+            --dark-color: #f8f9fa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        [data-bs-theme="light"] body {
+            background-color: #f5f5f5;
+        }
+        
+        [data-bs-theme="dark"] body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .navbar {
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        
+        [data-bs-theme="light"] .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+        }
+        
+        [data-bs-theme="dark"] .navbar {
+            background-color: #1f1f1f;
+            box-shadow: 0 2px 4px rgba(0,0,0,.3);
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .sidebar {
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        
+        [data-bs-theme="light"] .sidebar {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+        }
+        
+        [data-bs-theme="dark"] .sidebar {
+            background: #2b2b2b;
+            box-shadow: 0 1px 3px rgba(0,0,0,.5);
+            color: #e0e0e0;
+        }
+
+        .article-card {
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            position: relative;
+        }
+        
+        [data-bs-theme="light"] .article-card {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+        }
+        
+        [data-bs-theme="dark"] .article-card {
+            background: #2b2b2b;
+            box-shadow: 0 1px 3px rgba(0,0,0,.5);
+            border: 1px solid #3a3a3a;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,.15);
+        }
+
+        .article-title {
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        
+        [data-bs-theme="light"] .article-title {
+            color: #333;
+        }
+        
+        [data-bs-theme="dark"] .article-title {
+            color: #e0e0e0;
+        }
+
+        .article-title:hover {
+            color: var(--primary-color);
+        }
+
+        .article-summary {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            transition: color 0.3s;
+        }
+        
+        [data-bs-theme="light"] .article-summary {
+            color: #666;
+        }
+        
+        [data-bs-theme="dark"] .article-summary {
+            color: #b0b0b0;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .article-source {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        [data-bs-theme="light"] .article-source {
+            background: #f8f9fa;
+            color: #666;
+        }
+        
+        [data-bs-theme="dark"] .article-source {
+            background: #3a3a3a;
+            color: #999;
+        }
+
+        .article-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--danger-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+        }
+
+        .filter-section h6 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .source-item {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .source-item:hover {
+            background: var(--light-color);
+        }
+
+        .btn-refresh {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-refresh:hover {
+            background: #0056b3;
+            color: white;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-indicator.online {
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: var(--danger-color);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+
+        .modal-body pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .selector-input {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .article-detail {
+            font-family: Georgia, serif;
+            line-height: 1.6;
+        }
+        
+        .article-full-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .article-full-content p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .article-full-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        
+        .modal-xl {
+            max-width: 90%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-bottom: 20px;
+            }
+            
+            .article-meta {
+                font-size: 0.8rem;
+            }
+            
+            .modal-xl {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-newspaper"></i> News Aggregator
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <span class="text-muted small">
+                    <span class="status-indicator online"></span>
+                    Auto-refresh: <span id="refreshInterval">15 min</span>
+                </span>
+                <button class="btn btn-refresh btn-sm" onclick="newsApp.fetchAllSources()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="newsApp.toggleTheme()">
+                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="bi bi-gear"></i> Settings
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <h6>Search</h6>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search articles...">
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="filter-section">
+                        <h6>Date Range</h6>
+                        <input type="date" class="form-control mb-2" id="dateFrom">
+                        <input type="date" class="form-control" id="dateTo">
+                    </div>
+
+                    <!-- Read Status -->
+                    <div class="filter-section">
+                        <h6>Status</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="readStatus" id="statusAll" value="all" checked>
+                            <label class="form-check-label" for="statusAll">All Articles</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="readStatus" id="statusUnread" value="unread">
+                            <label class="form-check-label" for="statusUnread">Unread Only</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="readStatus" id="statusRead" value="read">
+                            <label class="form-check-label" for="statusRead">Read Only</label>
+                        </div>
+                    </div>
+
+                    <!-- Sources -->
+                    <div class="filter-section">
+                        <h6>Sources</h6>
+                        <div id="sourceFilters"></div>
+                        <button class="btn btn-sm btn-outline-primary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#sourcesModal">
+                            <i class="bi bi-plus-circle"></i> Manage Sources
+                        </button>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="filter-section">
+                        <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="newsApp.markAllAsRead()">
+                            <i class="bi bi-check-all"></i> Mark All Read
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary w-100" onclick="newsApp.clearAllArticles()">
+                            <i class="bi bi-trash"></i> Clear Articles
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div id="articlesContainer">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Fetching articles...</p>
+                    </div>
+                    <div class="empty-state" style="display: none;">
+                        <i class="bi bi-inbox"></i>
+                        <h5>No articles found</h5>
+                        <p>Try adjusting your filters or add some news sources.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sources Management Modal -->
+    <div class="modal fade" id="sourcesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage News Sources</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6>Current Sources</h6>
+                        <div id="sourcesList"></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6>Add New Source</h6>
+                    <form id="addSourceForm">
+                        <div class="mb-3">
+                            <label class="form-label">Source Name</label>
+                            <input type="text" class="form-control" id="sourceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL</label>
+                            <input type="url" class="form-control" id="sourceUrl" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Article Container Selector</label>
+                            <input type="text" class="form-control selector-input" id="containerSelector" 
+                                   placeholder=".article, .news-item">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title Selector</label>
+                            <input type="text" class="form-control selector-input" id="titleSelector" 
+                                   placeholder="h2, .title, a">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Link Selector (optional)</label>
+                            <input type="text" class="form-control selector-input" id="linkSelector" 
+                                   placeholder="a[href]">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date Selector (optional)</label>
+                            <input type="text" class="form-control selector-input" id="dateSelector" 
+                                   placeholder=".date, .time, time">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Summary Selector (optional)</label>
+                            <input type="text" class="form-control selector-input" id="summarySelector" 
+                                   placeholder=".summary, .description, p">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" onclick="newsApp.testSource()">
+                                <i class="bi bi-play-circle"></i> Test
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Add Source
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="testResults" class="mt-3"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="newsApp.exportSources()">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                        <i class="bi bi-upload"></i> Import
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="newsApp.importSources(event)">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Detail Modal -->
+    <div class="modal fade" id="articleModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="articleModalTitle">Article Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="articleModalBody">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" target="_blank" id="articleModalLink" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-up-right"></i> Open Original
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Auto-Refresh Interval</label>
+                        <select class="form-select" id="refreshIntervalSelect">
+                            <option value="0">Disabled</option>
+                            <option value="5">5 minutes</option>
+                            <option value="15" selected>15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">CORS Proxy</label>
+                        <select class="form-select" id="corsProxySelect">
+                            <option value="http://localhost:8080/fetch?url=">Local Proxy (Recommended)</option>
+                            <option value="https://corsproxy.io/?">CORS Proxy IO</option>
+                            <option value="https://api.allorigins.win/raw?url=">AllOrigins</option>
+                            <option value="">No Proxy (Direct)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Articles Per Page</label>
+                        <input type="number" class="form-control" id="articlesPerPage" value="50" min="10" max="200">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="showSummaries" checked>
+                        <label class="form-check-label" for="showSummaries">
+                            Show article summaries
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="newsApp.saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class NewsAggregator {
+            constructor() {
+                this.articles = [];
+                this.sources = [];
+                this.readArticles = new Set();
+                this.refreshInterval = null;
+                this.settings = {
+                    refreshInterval: 15,
+                    corsProxy: 'http://localhost:8080/fetch?url=',
+                    articlesPerPage: 50,
+                    showSummaries: true
+                };
+                
+                this.init();
+            }
+
+            init() {
+                // Initialize theme based on system preference
+                this.initializeTheme();
+                
+                // Load saved data
+                this.loadSettings();
+                this.loadSources();
+                this.loadReadStatus();
+                
+                // Initialize default sources if none exist
+                if (this.sources.length === 0) {
+                    this.initializeDefaultSources();
+                }
+                
+                // Set up event listeners
+                this.setupEventListeners();
+                
+                // Initial fetch
+                this.fetchAllSources();
+                
+                // Set up auto-refresh
+                this.setupAutoRefresh();
+                
+                // Update UI
+                this.updateSourceFilters();
+                this.updateSourcesList();
+            }
+
+            initializeTheme() {
+                // Check for saved theme preference
+                const savedTheme = localStorage.getItem('newsAggregatorTheme');
+                
+                if (savedTheme) {
+                    // Use saved preference
+                    this.setTheme(savedTheme);
+                } else {
+                    // Use system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.setTheme(prefersDark ? 'dark' : 'light');
+                }
+                
+                // Listen for system preference changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!localStorage.getItem('newsAggregatorTheme')) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
+
+            setTheme(theme) {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                const icon = document.getElementById('themeIcon');
+                if (icon) {
+                    icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+                }
+            }
+
+            toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                this.setTheme(newTheme);
+                localStorage.setItem('newsAggregatorTheme', newTheme);
+            }
+
+            initializeDefaultSources() {
+                const defaultSources = [
+                    {
+                        id: this.generateId(),
+                        name: 'Interfax Ukraine',
+                        url: 'https://en.interfax.com.ua/news/general.html',
+                        enabled: true,
+                        selectors: {
+                            container: '.grid.article',
+                            title: '.article-link-wrapper a.article-link',
+                            link: '.article-link-wrapper a.article-link',
+                            date: '.article-time',
+                            summary: '.article-summary'
+                        }
+                    },
+                    {
+                        id: this.generateId(),
+                        name: 'Ukrinform',
+                        url: 'https://www.ukrinform.net/block-lastnews',
+                        enabled: true,
+                        selectors: {
+                            container: 'article[data-id]',
+                            title: 'h2 a',
+                            link: 'h2 a',
+                            date: 'time',
+                            summary: 'section p'
+                        }
+                    }
+                ];
+                
+                this.sources = defaultSources;
+                this.saveSources();
+            }
+
+            setupEventListeners() {
+                // Search
+                document.getElementById('searchInput').addEventListener('input', () => this.filterArticles());
+                
+                // Date filters
+                document.getElementById('dateFrom').addEventListener('change', () => this.filterArticles());
+                document.getElementById('dateTo').addEventListener('change', () => this.filterArticles());
+                
+                // Read status filter
+                document.querySelectorAll('input[name="readStatus"]').forEach(radio => {
+                    radio.addEventListener('change', () => this.filterArticles());
+                });
+                
+                // Add source form
+                document.getElementById('addSourceForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addSource();
+                });
+                
+                // Set today's date as max for date inputs
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('dateFrom').max = today;
+                document.getElementById('dateTo').max = today;
+                document.getElementById('dateTo').value = today;
+            }
+
+            setupAutoRefresh() {
+                if (this.refreshInterval) {
+                    clearInterval(this.refreshInterval);
+                }
+                
+                if (this.settings.refreshInterval > 0) {
+                    this.refreshInterval = setInterval(() => {
+                        this.fetchAllSources();
+                    }, this.settings.refreshInterval * 60 * 1000);
+                }
+            }
+
+            async fetchAllSources() {
+                console.log('=====================================');
+                console.log('[FETCH ALL] Starting to fetch all sources');
+                console.log('[SETTINGS] Current settings:', this.settings);
+                console.log('[SOURCES] Total sources:', this.sources.length);
+                console.log('[SOURCES] Enabled sources:', this.sources.filter(s => s.enabled).map(s => s.name));
+                
+                const container = document.getElementById('articlesContainer');
+                container.innerHTML = '<div class="loading-spinner active"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Fetching articles...</p></div>';
+                
+                this.articles = [];
+                
+                for (const source of this.sources.filter(s => s.enabled)) {
+                    console.log(`\n[FETCHING SOURCE] ${source.name}`);
+                    console.log('[SOURCE URL]', source.url);
+                    console.log('[SOURCE SELECTORS]', source.selectors);
+                    
+                    try {
+                        await this.fetchSource(source);
+                        console.log(`[SUCCESS] ${source.name} - Found ${this.articles.filter(a => a.sourceId === source.id).length} articles`);
+                    } catch (error) {
+                        console.error(`[ERROR] Failed to fetch ${source.name}:`, error);
+                        console.error('[ERROR STACK]', error.stack);
+                    }
+                }
+                
+                console.log('\n[BEFORE DEDUP] Total articles:', this.articles.length);
+                
+                // Remove duplicates
+                this.removeDuplicates();
+                
+                console.log('[AFTER DEDUP] Total articles:', this.articles.length);
+                
+                // Sort by date (newest first)
+                this.articles.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                
+                console.log('[SORTED] Articles sorted by date');
+                console.log('[FINAL] Displaying articles');
+                console.log('=====================================\n');
+                
+                // Display articles
+                this.displayArticles();
+            }
+
+            async fetchSource(source) {
+                try {
+                    // Use different proxy or direct fetch depending on settings
+                    let fetchUrl;
+                    if (this.settings.corsProxy === '') {
+                        fetchUrl = source.url;
+                    } else {
+                        fetchUrl = this.settings.corsProxy + encodeURIComponent(source.url);
+                    }
+                    
+                    console.log(`[FETCH] Fetching URL: ${fetchUrl}`);
+                    
+                    const response = await fetch(fetchUrl);
+                    console.log(`[RESPONSE] Status: ${response.status} ${response.statusText}`);
+                    console.log(`[RESPONSE] Headers:`, response.headers);
+                    
+                    const html = await response.text();
+                    console.log(`[HTML] Received ${html.length} characters`);
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    console.log(`[PARSING] Document parsed`);
+                    console.log(`[PARSING] Document title:`, doc.title);
+                    
+                    // Find base URL for relative links
+                    const baseUrl = new URL(source.url).origin;
+                    console.log(`[BASE URL] ${baseUrl}`);
+                    
+                    // Extract articles
+                    console.log(`[SELECTOR] Looking for: "${source.selectors.container}"`);
+                    const containers = doc.querySelectorAll(source.selectors.container);
+                    console.log(`[FOUND] ${containers.length} article containers`);
+                    
+                    if (containers.length === 0) {
+                        console.warn(`[WARNING] No containers found with selector: ${source.selectors.container}`);
+                        console.log(`[DEBUG] First 500 chars of HTML:`, html.substring(0, 500));
+                    }
+                    
+                    let articlesExtracted = 0;
+                    containers.forEach((container, index) => {
+                        try {
+                            if (index < 3) { // Log details for first 3 containers
+                                console.log(`\n[CONTAINER ${index}] HTML:`, container.innerHTML.substring(0, 200));
+                            }
+                            
+                            const titleElement = container.querySelector(source.selectors.title);
+                            const linkElement = container.querySelector(source.selectors.link || source.selectors.title);
+                            const dateElement = container.querySelector(source.selectors.date);
+                            const summaryElement = container.querySelector(source.selectors.summary);
+                            
+                            if (index < 3) { // Log details for first 3 articles
+                                console.log(`[ARTICLE ${index}] Title element:`, titleElement ? 'found' : 'not found');
+                                console.log(`[ARTICLE ${index}] Link element:`, linkElement ? 'found' : 'not found');
+                                console.log(`[ARTICLE ${index}] Date element:`, dateElement ? 'found' : 'not found');
+                                console.log(`[ARTICLE ${index}] Summary element:`, summaryElement ? 'found' : 'not found');
+                            }
+                            
+                            if (titleElement) {
+                                const title = titleElement.textContent.trim();
+                                let link = linkElement?.href || linkElement?.getAttribute('href') || '';
+                                
+                                // IMPORTANT: linkElement.href gives the browser-resolved URL which is wrong
+                                // We need to use getAttribute to get the actual href value
+                                if (linkElement) {
+                                    link = linkElement.getAttribute('href') || '';
+                                }
+                                
+                                // Fix relative URLs
+                                if (link && !link.startsWith('http')) {
+                                    const originalLink = link;
+                                    // Handle different URL formats
+                                    if (link.startsWith('//')) {
+                                        // Protocol-relative URL
+                                        link = 'https:' + link;
+                                    } else if (link.startsWith('/')) {
+                                        // Absolute path - use the source base URL
+                                        link = baseUrl + link;
+                                    } else {
+                                        // Relative path
+                                        link = baseUrl + '/' + link;
+                                    }
+                                    
+                                    if (index < 3) {
+                                        console.log(`[URL FIX] Original: ${originalLink} -> Fixed: ${link}`);
+                                    }
+                                }
+                                
+                                const article = {
+                                    id: this.generateId(),
+                                    title: title,
+                                    link: link,
+                                    summary: summaryElement?.textContent.trim().substring(0, 200) || '',
+                                    date: this.parseDate(dateElement?.textContent || dateElement?.getAttribute('datetime')),
+                                    source: source.name,
+                                    sourceId: source.id,
+                                    fetchedAt: new Date()
+                                };
+                                
+                                if (title) {
+                                    this.articles.push(article);
+                                    articlesExtracted++;
+                                    
+                                    if (index < 3) {
+                                        console.log(`[ARTICLE ${index}] Extracted:`, {
+                                            title: article.title.substring(0, 50),
+                                            link: article.link,
+                                            hasDate: !!article.date,
+                                            hasSummary: !!article.summary
+                                        });
+                                    }
+                                }
+                            } else {
+                                if (index < 3) {
+                                    console.warn(`[ARTICLE ${index}] No title found with selector: ${source.selectors.title}`);
+                                }
+                            }
+                        } catch (err) {
+                            console.error(`[ERROR] Parsing article ${index}:`, err.message);
+                        }
+                    });
+                    
+                    console.log(`[EXTRACTION COMPLETE] ${articlesExtracted} articles extracted from ${source.name}`);
+                } catch (error) {
+                    console.error(`[FETCH ERROR] ${source.name}:`, error.message);
+                    console.error(`[ERROR DETAILS]`, error);
+                    throw error;
+                }
+            }
+
+            parseDate(dateString) {
+                if (!dateString) return new Date();
+                
+                try {
+                    // Try parsing different date formats
+                    const date = new Date(dateString);
+                    if (!isNaN(date)) return date;
+                    
+                    // Handle "X minutes ago" format
+                    const agoMatch = dateString.match(/(\d+)\s*(minute|hour|day|week|month)s?\s*ago/i);
+                    if (agoMatch) {
+                        const amount = parseInt(agoMatch[1]);
+                        const unit = agoMatch[2].toLowerCase();
+                        const now = new Date();
+                        
+                        switch(unit) {
+                            case 'minute':
+                                return new Date(now - amount * 60000);
+                            case 'hour':
+                                return new Date(now - amount * 3600000);
+                            case 'day':
+                                return new Date(now - amount * 86400000);
+                            case 'week':
+                                return new Date(now - amount * 604800000);
+                            case 'month':
+                                return new Date(now - amount * 2592000000);
+                        }
+                    }
+                    
+                    return new Date();
+                } catch {
+                    return new Date();
+                }
+            }
+
+            removeDuplicates() {
+                const seen = new Map();
+                const unique = [];
+                
+                for (const article of this.articles) {
+                    const key = this.normalizeTitle(article.title);
+                    
+                    if (!seen.has(key)) {
+                        seen.set(key, true);
+                        unique.push(article);
+                    }
+                }
+                
+                this.articles = unique;
+            }
+
+            normalizeTitle(title) {
+                // Remove special characters and normalize for comparison
+                return title.toLowerCase()
+                    .replace(/[^\w\s]/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            displayArticles() {
+                const filtered = this.getFilteredArticles();
+                const container = document.getElementById('articlesContainer');
+                
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h5>No articles found</h5>
+                            <p>Try adjusting your filters or add some news sources.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const articlesHtml = filtered.slice(0, this.settings.articlesPerPage).map(article => {
+                    const isRead = this.readArticles.has(article.id);
+                    const timeAgo = this.getTimeAgo(article.fetchedAt);
+                    
+                    return `
+                        <div class="article-card" data-article-id="${article.id}" style="cursor: pointer;" onclick="newsApp.showArticleDetails('${article.id}')">
+                            ${!isRead ? '<span class="new-badge">NEW</span>' : ''}
+                            <div class="article-title">
+                                ${this.escapeHtml(article.title)}
+                            </div>
+                            ${this.settings.showSummaries && article.summary ? 
+                                `<div class="article-summary">${this.escapeHtml(article.summary)}...</div>` : ''}
+                            <div class="article-meta">
+                                <div>
+                                    <span class="article-source">${article.source}</span>
+                                    <span class="article-time">${timeAgo}</span>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); newsApp.showArticleDetails('${article.id}')">
+                                        <i class="bi bi-eye"></i> Read
+                                    </button>
+                                    <a href="${article.link}" target="_blank" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); newsApp.markAsRead('${article.id}')">
+                                        <i class="bi bi-box-arrow-up-right"></i> Original
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation(); newsApp.markAsRead('${article.id}')">
+                                        ${isRead ? '<i class="bi bi-check-circle"></i>' : '<i class="bi bi-circle"></i>'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = articlesHtml;
+            }
+
+            getFilteredArticles() {
+                let filtered = [...this.articles];
+                
+                // Search filter
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                if (searchTerm) {
+                    filtered = filtered.filter(article => 
+                        article.title.toLowerCase().includes(searchTerm) ||
+                        (article.summary && article.summary.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                // Date filter
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                if (dateFrom) {
+                    filtered = filtered.filter(article => 
+                        new Date(article.date) >= new Date(dateFrom)
+                    );
+                }
+                if (dateTo) {
+                    filtered = filtered.filter(article => 
+                        new Date(article.date) <= new Date(dateTo + 'T23:59:59')
+                    );
+                }
+                
+                // Read status filter
+                const readStatus = document.querySelector('input[name="readStatus"]:checked').value;
+                if (readStatus === 'unread') {
+                    filtered = filtered.filter(article => !this.readArticles.has(article.id));
+                } else if (readStatus === 'read') {
+                    filtered = filtered.filter(article => this.readArticles.has(article.id));
+                }
+                
+                // Source filter
+                const enabledSources = Array.from(document.querySelectorAll('.source-filter-checkbox:checked'))
+                    .map(cb => cb.value);
+                if (enabledSources.length > 0) {
+                    filtered = filtered.filter(article => enabledSources.includes(article.sourceId));
+                }
+                
+                return filtered;
+            }
+
+            filterArticles() {
+                this.displayArticles();
+            }
+
+            async showArticleDetails(articleId) {
+                const article = this.articles.find(a => a.id === articleId);
+                if (!article) return;
+                
+                // Mark as read when opening
+                if (!this.readArticles.has(articleId)) {
+                    this.readArticles.add(articleId);
+                    this.saveReadStatus();
+                }
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('articleModal'));
+                const modalTitle = document.getElementById('articleModalTitle');
+                const modalBody = document.getElementById('articleModalBody');
+                const modalLink = document.getElementById('articleModalLink');
+                
+                // Set initial content
+                modalTitle.textContent = article.title;
+                
+                // Make sure the modal link uses the correct full URL
+                let correctLink = article.link;
+                if (!correctLink.startsWith('http')) {
+                    const sourceBaseUrl = new URL(this.sources.find(s => s.id === article.sourceId)?.url || '').origin;
+                    if (correctLink.startsWith('/')) {
+                        correctLink = sourceBaseUrl + correctLink;
+                    } else {
+                        correctLink = sourceBaseUrl + '/' + correctLink;
+                    }
+                }
+                modalLink.href = correctLink;
+                modalBody.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading article content...</span>
+                        </div>
+                        <p class="mt-3">Fetching full article...</p>
+                    </div>
+                `;
+                
+                modal.show();
+                
+                try {
+                    // Make sure article.link is a full URL
+                    let fullArticleUrl = article.link;
+                    if (!fullArticleUrl.startsWith('http')) {
+                        // Fix the URL if it's relative
+                        const sourceBaseUrl = new URL(this.sources.find(s => s.id === article.sourceId)?.url || '').origin;
+                        if (fullArticleUrl.startsWith('/')) {
+                            fullArticleUrl = sourceBaseUrl + fullArticleUrl;
+                        } else {
+                            fullArticleUrl = sourceBaseUrl + '/' + fullArticleUrl;
+                        }
+                    }
+                    
+                    console.log(`[MODAL] Fetching full article from: ${fullArticleUrl}`);
+                    
+                    // Fetch full article content
+                    const fetchUrl = this.settings.corsProxy + encodeURIComponent(fullArticleUrl);
+                    const response = await fetch(fetchUrl);
+                    const html = await response.text();
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Try to extract article content based on source
+                    let content = '';
+                    let imageUrl = '';
+                    
+                    // Log what we're trying to fetch
+                    console.log(`[ARTICLE FETCH] Fetching content from: ${article.link}`);
+                    console.log(`[ARTICLE FETCH] Source: ${article.source}`);
+                    
+                    // Extract meta information
+                    const metaDescription = doc.querySelector('meta[name="description"]')?.content || '';
+                    const metaKeywords = doc.querySelector('meta[name="keywords"]')?.content || '';
+                    const ogImage = doc.querySelector('meta[property="og:image"]')?.content || '';
+                    const articleAuthor = doc.querySelector('meta[name="author"]')?.content || '';
+                    const publishedTime = doc.querySelector('meta[property="article:published_time"]')?.content || '';
+                    
+                    if (article.source === 'Interfax Ukraine') {
+                        // Extract Interfax article content
+                        const articleContent = doc.querySelector('.article-content');
+                        const articleImage = doc.querySelector('.article-image-container img') || 
+                                           doc.querySelector('.article-content img') ||
+                                           doc.querySelector('img[alt*="' + article.title.substring(0, 20) + '"]');
+                        
+                        // Get all text content including multiple paragraphs
+                        const allParagraphs = doc.querySelectorAll('.article-content p, .article-content div');
+                        
+                        if (articleContent) {
+                            content = articleContent.innerHTML;
+                        } else if (allParagraphs.length > 0) {
+                            content = Array.from(allParagraphs).map(p => p.outerHTML).join('');
+                        } else {
+                            // More aggressive fallback
+                            const textElements = doc.querySelectorAll('p, .text, .content, .story, .article-text');
+                            content = Array.from(textElements)
+                                .filter(el => el.textContent.length > 50)
+                                .map(el => `<p>${el.textContent}</p>`)
+                                .join('');
+                        }
+                        
+                        if (articleImage) {
+                            imageUrl = articleImage.src;
+                            if (!imageUrl.startsWith('http')) {
+                                imageUrl = new URL(imageUrl, article.link).href;
+                            }
+                        } else if (ogImage) {
+                            imageUrl = ogImage;
+                        }
+                        
+                        console.log(`[INTERFAX] Content length: ${content.length}, Image: ${imageUrl ? 'found' : 'not found'}`);
+                        
+                    } else if (article.source === 'Ukrinform') {
+                        // Extract Ukrinform article content
+                        const articleBody = doc.querySelector('.newsText') || 
+                                          doc.querySelector('.article__body') || 
+                                          doc.querySelector('[itemprop="articleBody"]') ||
+                                          doc.querySelector('.news-text') ||
+                                          doc.querySelector('.articleBody');
+                                          
+                        const articleImage = doc.querySelector('.newsImgCont img') || 
+                                           doc.querySelector('.article-image img') ||
+                                           doc.querySelector('.newsImg img') ||
+                                           doc.querySelector('img[alt*="' + article.title.substring(0, 20) + '"]');
+                        
+                        if (articleBody) {
+                            content = articleBody.innerHTML;
+                        } else {
+                            // More aggressive extraction
+                            const allParagraphs = doc.querySelectorAll('p');
+                            const relevantParagraphs = Array.from(allParagraphs)
+                                .filter(p => p.textContent.length > 30 && !p.classList.contains('copyright'))
+                                .slice(0, 30);
+                            content = relevantParagraphs.map(p => p.outerHTML).join('');
+                        }
+                        
+                        if (articleImage) {
+                            imageUrl = articleImage.src;
+                            if (!imageUrl.startsWith('http')) {
+                                imageUrl = new URL(imageUrl, article.link).href;
+                            }
+                        } else if (ogImage) {
+                            imageUrl = ogImage;
+                        }
+                        
+                        console.log(`[UKRINFORM] Content length: ${content.length}, Image: ${imageUrl ? 'found' : 'not found'}`);
+                        
+                    } else {
+                        // Generic extraction for other sources
+                        const articleSelectors = [
+                            'article', '.article-content', '.article-body', 
+                            '[itemprop="articleBody"]', '.content', 'main',
+                            '.story-body', '.entry-content', '.post-content'
+                        ];
+                        
+                        for (const selector of articleSelectors) {
+                            const element = doc.querySelector(selector);
+                            if (element) {
+                                content = element.innerHTML;
+                                break;
+                            }
+                        }
+                        
+                        if (!content) {
+                            const paragraphs = doc.querySelectorAll('p');
+                            content = Array.from(paragraphs)
+                                .filter(p => p.textContent.length > 30)
+                                .slice(0, 30)
+                                .map(p => p.outerHTML)
+                                .join('');
+                        }
+                        
+                        // Try to find image
+                        const imgs = doc.querySelectorAll('img');
+                        const largeImg = Array.from(imgs).find(img => 
+                            img.width > 300 || img.src.includes('article') || img.src.includes('news')
+                        );
+                        if (largeImg) {
+                            imageUrl = largeImg.src;
+                            if (!imageUrl.startsWith('http')) {
+                                imageUrl = new URL(imageUrl, article.link).href;
+                            }
+                        } else if (ogImage) {
+                            imageUrl = ogImage;
+                        }
+                    }
+                    
+                    // Display the content
+                    modalBody.innerHTML = `
+                        <div class="article-detail">
+                            <div class="mb-3">
+                                <span class="badge bg-primary">${article.source}</span>
+                                <span class="text-muted ms-2">${new Date(article.date).toLocaleString()}</span>
+                                ${articleAuthor ? `<span class="text-muted ms-2">by ${articleAuthor}</span>` : ''}
+                            </div>
+                            
+                            ${imageUrl ? `
+                                <div class="text-center mb-3">
+                                    <img src="${imageUrl}" class="img-fluid" style="max-height: 500px; object-fit: contain; border-radius: 8px;">
+                                </div>
+                            ` : ''}
+                            
+                            ${metaDescription && metaDescription !== article.summary ? `
+                                <div class="alert alert-light">
+                                    <strong>Description:</strong> ${metaDescription}
+                                </div>
+                            ` : ''}
+                            
+                            ${article.summary ? `
+                                <p class="lead">${article.summary}</p>
+                                <hr>
+                            ` : ''}
+                            
+                            <div class="article-full-content">
+                                ${content ? `
+                                    <div style="font-size: 1.1rem; line-height: 1.8;">
+                                        ${content}
+                                    </div>
+                                ` : `
+                                    <div class="alert alert-info">
+                                        <h5>Article Preview</h5>
+                                        <p><strong>Title:</strong> ${article.title}</p>
+                                        ${metaDescription ? `<p><strong>Description:</strong> ${metaDescription}</p>` : ''}
+                                        ${article.summary ? `<p><strong>Summary:</strong> ${article.summary}</p>` : ''}
+                                        <hr>
+                                        <p>Full article content could not be extracted. This might be due to the website's structure or access restrictions.</p>
+                                        <p>Click the "Open Original" button below to read the full article on the source website.</p>
+                                    </div>
+                                `}
+                            </div>
+                            
+                            ${metaKeywords ? `
+                                <div class="mt-3 pt-3 border-top">
+                                    <small class="text-muted"><strong>Keywords:</strong> ${metaKeywords}</small>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    // Clean up the content (remove scripts, styles, etc.)
+                    const scripts = modalBody.querySelectorAll('script');
+                    scripts.forEach(s => s.remove());
+                    const styles = modalBody.querySelectorAll('style');
+                    styles.forEach(s => s.remove());
+                    
+                    // Make links open in new tab
+                    const links = modalBody.querySelectorAll('a');
+                    links.forEach(link => {
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                    });
+                    
+                } catch (error) {
+                    console.error('Error fetching article:', error);
+                    modalBody.innerHTML = `
+                        <div class="alert alert-warning">
+                            <h5>Unable to fetch full article content</h5>
+                            <p>${error.message}</p>
+                            <hr>
+                            <p><strong>Title:</strong> ${article.title}</p>
+                            ${article.summary ? `<p><strong>Summary:</strong> ${article.summary}</p>` : ''}
+                            <p><strong>Source:</strong> ${article.source}</p>
+                            <p><strong>Date:</strong> ${new Date(article.date).toLocaleString()}</p>
+                            <p class="mt-3">Please click "Open Original" to read the full article on the source website.</p>
+                        </div>
+                    `;
+                }
+                
+                // Refresh the article list to show read status
+                this.displayArticles();
+            }
+
+            markAsRead(articleId) {
+                if (this.readArticles.has(articleId)) {
+                    this.readArticles.delete(articleId);
+                } else {
+                    this.readArticles.add(articleId);
+                }
+                this.saveReadStatus();
+                this.displayArticles();
+            }
+
+            markAllAsRead() {
+                this.articles.forEach(article => {
+                    this.readArticles.add(article.id);
+                });
+                this.saveReadStatus();
+                this.displayArticles();
+            }
+
+            clearAllArticles() {
+                if (confirm('Are you sure you want to clear all articles? This will not affect your sources.')) {
+                    this.articles = [];
+                    this.readArticles.clear();
+                    this.saveReadStatus();
+                    this.displayArticles();
+                }
+            }
+
+            addSource() {
+                const source = {
+                    id: this.generateId(),
+                    name: document.getElementById('sourceName').value,
+                    url: document.getElementById('sourceUrl').value,
+                    enabled: true,
+                    selectors: {
+                        container: document.getElementById('containerSelector').value || 'article',
+                        title: document.getElementById('titleSelector').value || 'h2',
+                        link: document.getElementById('linkSelector').value || '',
+                        date: document.getElementById('dateSelector').value || '',
+                        summary: document.getElementById('summarySelector').value || ''
+                    }
+                };
+                
+                this.sources.push(source);
+                this.saveSources();
+                this.updateSourceFilters();
+                this.updateSourcesList();
+                
+                // Reset form
+                document.getElementById('addSourceForm').reset();
+                
+                // Fetch from new source
+                this.fetchSource(source).then(() => this.displayArticles());
+            }
+
+            editSource(sourceId) {
+                const source = this.sources.find(s => s.id === sourceId);
+                if (source) {
+                    document.getElementById('sourceName').value = source.name;
+                    document.getElementById('sourceUrl').value = source.url;
+                    document.getElementById('containerSelector').value = source.selectors.container;
+                    document.getElementById('titleSelector').value = source.selectors.title;
+                    document.getElementById('linkSelector').value = source.selectors.link || '';
+                    document.getElementById('dateSelector').value = source.selectors.date || '';
+                    document.getElementById('summarySelector').value = source.selectors.summary || '';
+                    
+                    // Remove old source and let user re-add
+                    this.deleteSource(sourceId);
+                }
+            }
+
+            deleteSource(sourceId) {
+                if (confirm('Are you sure you want to delete this source?')) {
+                    this.sources = this.sources.filter(s => s.id !== sourceId);
+                    this.articles = this.articles.filter(a => a.sourceId !== sourceId);
+                    this.saveSources();
+                    this.updateSourceFilters();
+                    this.updateSourcesList();
+                    this.displayArticles();
+                }
+            }
+
+            toggleSource(sourceId) {
+                const source = this.sources.find(s => s.id === sourceId);
+                if (source) {
+                    source.enabled = !source.enabled;
+                    this.saveSources();
+                    this.updateSourcesList();
+                }
+            }
+
+            async testSource() {
+                const resultsDiv = document.getElementById('testResults');
+                resultsDiv.innerHTML = '<div class="alert alert-info">Testing source...</div>';
+                
+                const testSource = {
+                    id: 'test',
+                    name: document.getElementById('sourceName').value || 'Test Source',
+                    url: document.getElementById('sourceUrl').value,
+                    enabled: true,
+                    selectors: {
+                        container: document.getElementById('containerSelector').value || 'article',
+                        title: document.getElementById('titleSelector').value || 'h2',
+                        link: document.getElementById('linkSelector').value || '',
+                        date: document.getElementById('dateSelector').value || '',
+                        summary: document.getElementById('summarySelector').value || ''
+                    }
+                };
+                
+                try {
+                    const tempArticles = this.articles;
+                    this.articles = [];
+                    await this.fetchSource(testSource);
+                    
+                    if (this.articles.length > 0) {
+                        resultsDiv.innerHTML = `
+                            <div class="alert alert-success">
+                                <strong>Success!</strong> Found ${this.articles.length} articles.
+                                <br><br>
+                                <strong>Sample article:</strong><br>
+                                Title: ${this.escapeHtml(this.articles[0].title)}<br>
+                                ${this.articles[0].link ? `Link: ${this.articles[0].link}<br>` : ''}
+                                ${this.articles[0].summary ? `Summary: ${this.escapeHtml(this.articles[0].summary.substring(0, 100))}...<br>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        resultsDiv.innerHTML = '<div class="alert alert-warning">No articles found. Check your selectors.</div>';
+                    }
+                    
+                    this.articles = tempArticles;
+                } catch (error) {
+                    resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                }
+            }
+
+            updateSourceFilters() {
+                const container = document.getElementById('sourceFilters');
+                const html = this.sources.map(source => `
+                    <div class="form-check">
+                        <input class="form-check-input source-filter-checkbox" type="checkbox" 
+                               value="${source.id}" id="filter-${source.id}" checked>
+                        <label class="form-check-label" for="filter-${source.id}">
+                            ${this.escapeHtml(source.name)}
+                        </label>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+                
+                // Add event listeners
+                container.querySelectorAll('.source-filter-checkbox').forEach(cb => {
+                    cb.addEventListener('change', () => this.filterArticles());
+                });
+            }
+
+            updateSourcesList() {
+                const container = document.getElementById('sourcesList');
+                
+                if (this.sources.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No sources configured.</p>';
+                    return;
+                }
+                
+                const html = this.sources.map(source => `
+                    <div class="source-item">
+                        <div>
+                            <strong>${this.escapeHtml(source.name)}</strong><br>
+                            <small class="text-muted">${this.escapeHtml(source.url)}</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary" onclick="newsApp.toggleSource('${source.id}')">
+                                ${source.enabled ? 'Disable' : 'Enable'}
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="newsApp.editSource('${source.id}')">
+                                Edit
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="newsApp.deleteSource('${source.id}')">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            }
+
+            exportSources() {
+                const data = {
+                    sources: this.sources,
+                    settings: this.settings,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `news-aggregator-sources-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            importSources(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (data.sources) {
+                            this.sources = data.sources;
+                            this.saveSources();
+                        }
+                        
+                        if (data.settings) {
+                            this.settings = { ...this.settings, ...data.settings };
+                            this.saveSettings();
+                        }
+                        
+                        this.updateSourceFilters();
+                        this.updateSourcesList();
+                        this.fetchAllSources();
+                        
+                        alert('Sources imported successfully!');
+                    } catch (error) {
+                        alert('Error importing sources: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            saveSettings() {
+                this.settings.refreshInterval = parseInt(document.getElementById('refreshIntervalSelect').value);
+                this.settings.corsProxy = document.getElementById('corsProxySelect').value;
+                this.settings.articlesPerPage = parseInt(document.getElementById('articlesPerPage').value);
+                this.settings.showSummaries = document.getElementById('showSummaries').checked;
+                
+                localStorage.setItem('newsAggregatorSettings', JSON.stringify(this.settings));
+                
+                // Update UI
+                document.getElementById('refreshInterval').textContent = 
+                    this.settings.refreshInterval === 0 ? 'Disabled' : `${this.settings.refreshInterval} min`;
+                
+                // Reset auto-refresh
+                this.setupAutoRefresh();
+                
+                // Re-display articles
+                this.displayArticles();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+            }
+
+            loadSettings() {
+                const saved = localStorage.getItem('newsAggregatorSettings');
+                if (saved) {
+                    this.settings = { ...this.settings, ...JSON.parse(saved) };
+                }
+                
+                // Update UI
+                document.getElementById('refreshIntervalSelect').value = this.settings.refreshInterval;
+                document.getElementById('corsProxySelect').value = this.settings.corsProxy;
+                document.getElementById('articlesPerPage').value = this.settings.articlesPerPage;
+                document.getElementById('showSummaries').checked = this.settings.showSummaries;
+                document.getElementById('refreshInterval').textContent = 
+                    this.settings.refreshInterval === 0 ? 'Disabled' : `${this.settings.refreshInterval} min`;
+            }
+
+            saveSources() {
+                localStorage.setItem('newsAggregatorSources', JSON.stringify(this.sources));
+            }
+
+            loadSources() {
+                const saved = localStorage.getItem('newsAggregatorSources');
+                if (saved) {
+                    this.sources = JSON.parse(saved);
+                }
+            }
+
+            saveReadStatus() {
+                localStorage.setItem('newsAggregatorRead', JSON.stringify([...this.readArticles]));
+            }
+
+            loadReadStatus() {
+                const saved = localStorage.getItem('newsAggregatorRead');
+                if (saved) {
+                    this.readArticles = new Set(JSON.parse(saved));
+                }
+            }
+
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            getTimeAgo(date) {
+                const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+                
+                const intervals = [
+                    { label: 'year', seconds: 31536000 },
+                    { label: 'month', seconds: 2592000 },
+                    { label: 'day', seconds: 86400 },
+                    { label: 'hour', seconds: 3600 },
+                    { label: 'minute', seconds: 60 }
+                ];
+                
+                for (const interval of intervals) {
+                    const count = Math.floor(seconds / interval.seconds);
+                    if (count >= 1) {
+                        return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
+                    }
+                }
+                
+                return 'just now';
+            }
+        }
+
+        // Initialize the app
+        const newsApp = new NewsAggregator();
+    </script>
+</body>
+</html>
