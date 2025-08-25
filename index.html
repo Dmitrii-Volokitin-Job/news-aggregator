@@ -396,8 +396,11 @@
                         <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="newsApp.markAllAsRead()">
                             <i class="bi bi-check-all"></i> Mark All Read
                         </button>
-                        <button class="btn btn-sm btn-outline-secondary w-100" onclick="newsApp.clearAllArticles()">
+                        <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="newsApp.clearAllArticles()">
                             <i class="bi bi-trash"></i> Clear Articles
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning w-100" onclick="newsApp.cleanStorage()">
+                            <i class="bi bi-database-x"></i> Clean Storage
                         </button>
                     </div>
                 </div>
@@ -662,8 +665,8 @@
                         enabled: true,
                         selectors: {
                             container: '.grid.article',
-                            title: '.article-link-wrapper a.article-link',
-                            link: '.article-link-wrapper a.article-link',
+                            title: 'h3.article-link-wrapper a.article-link',
+                            link: 'h3.article-link-wrapper a.article-link',
                             date: '.article-time',
                             summary: '.article-summary'
                         }
@@ -677,7 +680,7 @@
                             container: 'article[data-id]',
                             title: 'h2 a',
                             link: 'h2 a',
-                            date: 'time',
+                            date: 'section time',
                             summary: 'section p'
                         }
                     }
@@ -818,7 +821,12 @@
                             const titleElement = container.querySelector(source.selectors.title);
                             const linkElement = container.querySelector(source.selectors.link || source.selectors.title);
                             const dateElement = container.querySelector(source.selectors.date);
-                            const summaryElement = container.querySelector(source.selectors.summary);
+                            let summaryElement = container.querySelector(source.selectors.summary);
+                            
+                            // Handle nested p tags in summary (e.g., Ukrinform has <p><p>text</p></p>)
+                            if (summaryElement && summaryElement.querySelector('p')) {
+                                summaryElement = summaryElement.querySelector('p');
+                            }
                             
                             if (index < 3) { // Log details for first 3 articles
                                 console.log(`[ARTICLE ${index}] Title element:`, titleElement ? 'found' : 'not found');
@@ -1357,6 +1365,33 @@
                 }
             }
 
+            cleanStorage() {
+                if (confirm('WARNING: This will clear ALL stored data including:\n\n• All saved news sources\n• All articles\n• Read/unread status\n• Settings and preferences\n• Theme preference\n\nThis action cannot be undone. Are you sure you want to continue?')) {
+                    // Clear all localStorage keys related to the news aggregator
+                    localStorage.removeItem('newsAggregatorSources');
+                    localStorage.removeItem('newsAggregatorRead');
+                    localStorage.removeItem('newsAggregatorSettings');
+                    localStorage.removeItem('newsAggregatorTheme');
+                    
+                    // Reset to default state
+                    this.articles = [];
+                    this.sources = [];
+                    this.readArticles.clear();
+                    this.settings = {
+                        refreshInterval: 15,
+                        corsProxy: 'http://localhost:8080/fetch?url=',
+                        articlesPerPage: 50,
+                        showSummaries: true
+                    };
+                    
+                    // Show success message
+                    alert('Storage has been cleaned successfully. The page will now reload with default settings.');
+                    
+                    // Reload the page to reinitialize everything
+                    window.location.reload();
+                }
+            }
+
             addSource() {
                 const source = {
                     id: this.generateId(),
@@ -1607,6 +1642,38 @@
                 const saved = localStorage.getItem('newsAggregatorSources');
                 if (saved) {
                     this.sources = JSON.parse(saved);
+                    // Update sources with outdated selectors
+                    this.updateOutdatedSources();
+                }
+            }
+
+            updateOutdatedSources() {
+                let updated = false;
+                
+                this.sources.forEach(source => {
+                    // Fix Interfax selectors if outdated
+                    if (source.url && source.url.includes('interfax.com.ua')) {
+                        if (source.selectors.title === '.article-link-wrapper a.article-link') {
+                            source.selectors.title = 'h3.article-link-wrapper a.article-link';
+                            source.selectors.link = 'h3.article-link-wrapper a.article-link';
+                            updated = true;
+                            console.log('[UPDATE] Fixed Interfax selectors');
+                        }
+                    }
+                    
+                    // Fix Ukrinform selectors if outdated
+                    if (source.url && source.url.includes('ukrinform.net')) {
+                        if (source.selectors.date === 'time') {
+                            source.selectors.date = 'section time';
+                            updated = true;
+                            console.log('[UPDATE] Fixed Ukrinform date selector');
+                        }
+                    }
+                });
+                
+                if (updated) {
+                    this.saveSources();
+                    console.log('[UPDATE] Saved updated source selectors');
                 }
             }
 
